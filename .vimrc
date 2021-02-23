@@ -101,3 +101,6 @@ map <C-k> <C-w><C-k>
 augroup filetypedetect
     au BufRead,BufNewFile *.dockerfile setfiletype dockerfile
 augroup END
+
+"make Vagrantfiles ruby
+autocmd BufNewFile,BufRead Vagrantfile set filetype=ruby
