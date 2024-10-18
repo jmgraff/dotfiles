@@ -85,9 +85,10 @@ augroup END
 """"""""""""""""""""""""""""
 " CoC
 """"""""""""""""""""""""""""
+let g:coc_disable_startup_warning = 1
+let g:coc_node_path = '~/.vim/node-v22.10.0-linux-x64/bin/node'
 let g:coc_config_home = '~/.vim/coc'
 let g:coc_data_home = '~/.vim/coc'
-let g:coc_disable_startup_warning = 1
 set cmdheight=2
 set signcolumn=yes
 
