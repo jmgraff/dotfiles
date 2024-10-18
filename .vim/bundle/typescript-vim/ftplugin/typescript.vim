@@ -13,9 +13,9 @@ setlocal commentstring=//\ %s
 " " and insert the comment leader when hitting <CR> or using "o".
 setlocal formatoptions-=t formatoptions+=croql
 
-setlocal suffixesadd+=.ts
+setlocal suffixesadd+=.ts,.tsx
 
-let b:undo_ftplugin = "setl fo< ofu< com< cms<"
+let b:undo_ftplugin = "setl cms< fo< sua<"
 
 let &cpo = s:cpo_save
 unlet s:cpo_save
