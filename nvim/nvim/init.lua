@@ -145,6 +145,17 @@ require("lspconfig.configs").ts_ls = {
 }
 require("lspconfig").ts_ls.setup({ capabilities = capabilities })
 
+
+-- Zig
+require("lspconfig.configs").zls = {
+    default_config = {
+        cmd = { "zls" },
+        filetypes = { "zig" },
+        root_dir = util.root_pattern("build.zig", "main.zig", ".git"),
+    }
+}
+require("lspconfig").zls.setup({ capabilities = capabilities })
+
 -- ─────────────────────────────────────────────────────────────
 -- Langauge specific nonsense
 -- ─────────────────────────────────────────────────────────────
