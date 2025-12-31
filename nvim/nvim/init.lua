@@ -156,6 +156,10 @@ require("lspconfig.configs").zls = {
 }
 require("lspconfig").zls.setup({ capabilities = capabilities })
 
+-- Clangd (TODO: replace all above with the new, easy version. But verify it works first.
+vim.lsp.enable({ "clangd" })
+
+
 -- ─────────────────────────────────────────────────────────────
 -- Langauge specific nonsense
 -- ─────────────────────────────────────────────────────────────
