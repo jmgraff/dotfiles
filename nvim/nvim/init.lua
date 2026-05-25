@@ -5,9 +5,7 @@ vim.cmd.syntax("on")
 vim.cmd.filetype("plugin indent on")
 
 vim.g.mapleader = " "
-vim.g.solarized_termcolors = 256
-vim.cmd.colorscheme("solarized")
-vim.opt.background = "dark"
+vim.cmd.colorscheme("moonfly")
 
 vim.opt.number = true
 vim.opt.cursorline = true
@@ -35,15 +33,6 @@ vim.opt.listchars = {
 vim.opt.signcolumn = "yes"
 vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
 
--- Window behavior
-vim.opt.equalalways = false
-vim.opt.winminheight = 0
-vim.opt.winheight = 9999
-vim.opt.helpheight = 9999
-
--- Auto reload external changes
---set autoread
-
 -- ─────────────────────────────────────────────────────────────
 -- Keymaps
 -- ─────────────────────────────────────────────────────────────
@@ -51,50 +40,98 @@ local map = vim.keymap.set
 local silent = { noremap = true, silent = true }
 
 map("n", "<Space>", "<Nop>", silent)
-map("", "<Leader>", "<Plug>(easymotion-prefix)")
 
 -- Find
-map("n", "<C-p>", ":GFiles<CR>", silent)
-map("n", "<Leader>p", ":Files<CR>", silent)
-map("n", "<C-f>", ":Rg<CR>", silent)
+map("n", "<C-p>", "<cmd>FzfLua git_files<CR>", silent)
+map("n", "<Leader>p", "<cmd>FzfLua files<CR>", silent)
+map("n", "<C-f>", "<cmd>FzfLua live_grep<CR>", silent)
 
 -- Tree
 require("nvim-tree").setup({
     actions = { open_file = { quit_on_open = true } },
 })
-map("n", "<C-n>", ":NvimTreeToggle<CR>", silent)
+map("n", "<C-n>", "<cmd>NvimTreeToggle<CR>", silent)
 
--- Tabs/Windows
-map("n", "<C-l>", ":tabn<CR>", silent)
-map("n", "<C-h>", ":tabp<CR>", silent)
-map("n", "<C-j>", "<C-w><C-j>", silent)
-map("n", "<C-k>", "<C-w><C-k>", silent)
+-- Buffers
+map("n", "<C-g>", "<cmd>FzfLua buffers<CR>", silent)
+map("n", "<C-h>", "<cmd>bprevious<CR>", silent)
+map("n", "<C-l>", "<cmd>bnext<CR>", silent)
 
--- LSP general keymaps
-map("n", "K", vim.lsp.buf.hover, {})
-map("n", "gd", vim.lsp.buf.definition, {})
-vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, {})
+-- EasyMotion
+map("n", "<C-j>", "<Plug>(easymotion-j)", silent)
+map("n", "<C-k>", "<Plug>(easymotion-k)", silent)
+map("n", "<leader>/", "<Plug>(easymotion-sn)", silent)
+
+-- Blame
+map("n", "<C-b>", "<cmd>Gitsigns toggle_current_line_blame<CR>")
+
+-- LSP navigation
+map("n", "K", vim.lsp.buf.hover, silent)
+map("n", "gd", "<cmd>FzfLua lsp_definitions<CR>", silent)
+map("n", "gD", vim.lsp.buf.declaration, silent)
+map("n", "gr", "<cmd>FzfLua lsp_references<CR>", silent)
+map("n", "gI", "<cmd>FzfLua lsp_implementations<CR>", silent)
+map("n", "gy", "<cmd>FzfLua lsp_typedefs<CR>", silent)
+
+-- LSP symbols
+map("n", "<leader>ds", "<cmd>FzfLua lsp_document_symbols<CR>", silent)
+map("n", "<leader>ws", "<cmd>FzfLua lsp_workspace_symbols<CR>", silent)
+
+-- LSP actions
+map("n", "<leader>rn", vim.lsp.buf.rename, silent)
+map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, silent)
+
+-- Diagnostics
+map("n", "<leader>e", vim.diagnostic.open_float, silent)
+map("n", "[d", vim.diagnostic.goto_prev, silent)
+map("n", "]d", vim.diagnostic.goto_next, silent)
+map("n", "<leader>dq", vim.diagnostic.setqflist, silent)
 
 -- ─────────────────────────────────────────────────────────────
 -- Completion (nvim-cmp + luasnip)
 -- ─────────────────────────────────────────────────────────────
+
 local cmp = require("cmp")
+local luasnip = require("luasnip")
+
+require("luasnip.loaders.from_vscode").lazy_load()
+
+vim.keymap.set({ "i", "s" }, "<C-l>", function()
+    if luasnip.expand_or_jumpable() then
+        luasnip.expand_or_jump()
+    end
+end, { silent = true, desc = "Snippet expand/jump" })
+
+vim.keymap.set({ "i", "s" }, "<C-h>", function()
+    if luasnip.jumpable(-1) then
+        luasnip.jump(-1)
+    end
+end, { silent = true, desc = "Snippet jump back" })
 
 cmp.setup({
     snippet = {
         expand = function(args)
-            require("luasnip").lsp_expand(args.body)
+            luasnip.lsp_expand(args.body)
         end,
     },
+
     mapping = cmp.mapping.preset.insert({
-        ["<Tab>"] = cmp.mapping.select_next_item(),
-        ["<S-Tab>"] = cmp.mapping.select_prev_item(),
-        ["<CR>"] = cmp.mapping.confirm({ select = true }),
+        ["<C-Space>"] = cmp.mapping.complete(),
+
+        ["<C-j>"] = cmp.mapping.select_next_item(),
+        ["<C-k>"] = cmp.mapping.select_prev_item(),
+
+        ["<CR>"] = cmp.mapping.confirm({
+            select = false,
+        }),
     }),
+
     sources = cmp.config.sources({
         { name = "nvim_lsp" },
-        { name = "buffer" },
+        { name = "luasnip" },
         { name = "path" },
+    }, {
+        { name = "buffer" },
     }),
 })
 
@@ -109,67 +146,43 @@ vim.diagnostic.config({
     signs = true,
     underline = true,
     severity_sort = true,
-    severity_sort = true,
     update_in_insert = false,
 })
 
 
--- LSP Setup (new vim.lsp.* API)
+-- LSP Setup
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
-local util = require("lspconfig.util")
 
--- Python (pyright)
-require("lspconfig.configs").pyright = {
-    default_config = {
-        cmd = { "pyright-langserver", "--stdio" },
-        filetypes = { "python" },
-        root_dir = util.root_pattern("pyrightconfig.json", "requirements.txt", "pyproject.toml", ".git"),
-        single_file_support = true,
-        settings = {
-            python = {
-                analysis = { autoSearchPaths = true, useLibraryCodeForTypes = true },
-            },
-        },
-    }
-}
-require("lspconfig").pyright.setup({ capabilities = capabilities })
+vim.lsp.config("*", {
+  capabilities = capabilities,
+})
 
--- TypeScript / JavaScript (ts_ls)
-require("lspconfig.configs").ts_ls = {
-    default_config = {
-        cmd = { "typescript-language-server", "--stdio" },
-        filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "typescript.tsx" },
-        root_dir = util.root_pattern("package.json", "tsconfig.json", "jsconfig.json", ".git"),
-        single_file_support = false,
-    },
-}
-require("lspconfig").ts_ls.setup({ capabilities = capabilities })
-
-
--- Zig
-require("lspconfig.configs").zls = {
-    default_config = {
-        cmd = { "zls" },
-        filetypes = { "zig" },
-        root_dir = util.root_pattern("build.zig", "main.zig", ".git"),
-    }
-}
-require("lspconfig").zls.setup({ capabilities = capabilities })
-
--- Clangd (TODO: replace all above with the new, easy version. But verify it works first.
-vim.lsp.enable({ "clangd" })
+vim.lsp.enable({
+  "pyright",
+  "ts_ls",
+  "zls",
+  "clangd",
+})
 
 
 -- ─────────────────────────────────────────────────────────────
 -- Langauge specific nonsense
 -- ─────────────────────────────────────────────────────────────
+
 -- JS/TS/React: prefer 2 spaces so indentexpr behaves
 vim.api.nvim_create_autocmd("FileType", {
-    pattern = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+    pattern = {
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "json",
+        "jsonc",
+    },
     callback = function()
         vim.opt_local.shiftwidth = 2
-        vim.opt_local.tabstop = 2
         vim.opt_local.softtabstop = 2
+        vim.opt_local.expandtab = true
     end,
 })
 
