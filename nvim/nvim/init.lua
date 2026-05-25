@@ -58,9 +58,10 @@ map("n", "<C-h>", "<cmd>bprevious<CR>", silent)
 map("n", "<C-l>", "<cmd>bnext<CR>", silent)
 
 -- EasyMotion
-map("n", "<C-j>", "<Plug>(easymotion-j)", silent)
-map("n", "<C-k>", "<Plug>(easymotion-k)", silent)
-map("n", "<leader>/", "<Plug>(easymotion-sn)", silent)
+vim.g.EasyMotion_smartcase = 1
+map("n", "<Leader>j", "<Plug>(easymotion-j)", silent)
+map("n", "<Leader>k", "<Plug>(easymotion-k)", silent)
+map("n", "s", "<Plug>(easymotion-bd-f)", silent)
 
 -- Blame
 map("n", "<C-b>", "<cmd>Gitsigns toggle_current_line_blame<CR>")
