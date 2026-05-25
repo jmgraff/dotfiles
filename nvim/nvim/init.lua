@@ -59,8 +59,8 @@ map("n", "<C-l>", "<cmd>bnext<CR>", silent)
 
 -- EasyMotion
 vim.g.EasyMotion_smartcase = 1
-map("n", "<Leader>j", "<Plug>(easymotion-j)", silent)
-map("n", "<Leader>k", "<Plug>(easymotion-k)", silent)
+map({ "n", "v" }, "<Leader>j", "<Plug>(easymotion-j)", silent)
+map({ "n", "v" }, "<Leader>k", "<Plug>(easymotion-k)", silent)
 map("n", "s", "<Plug>(easymotion-bd-f)", silent)
 
 -- Blame
